@@ -1,4 +1,5 @@
 // This script uses sdl, make sure you have sdl2 installed to use the script; https://lazyfoo.net/tutorials/SDL/01_hello_SDL/windows/msvc2019/index.php
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <iostream>
 #include <random>
