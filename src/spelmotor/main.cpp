@@ -130,13 +130,13 @@ int main(int argc, char* args[]){
 
 	// Create texture
 	// taxture uses an bitmap image, change the path to make sure that the image can be loaded. 
-	const char* image_path = "C:/Users/Bergs/source/repos/Testsdl2/Project1/images/Pingisracket_fram.bmp";
+	const char* image_path = "../../bilder/target_red_green_yellow.bmp";
 	surface = SDL_LoadBMP(image_path); 
 	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
 	textrue = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
-	const char* image_path_hit = "C:/Users/Bergs/source/repos/Testsdl2/Project1/images/circle.bmp";
+	const char* image_path_hit = "../../bilder/circle.bmp";
 	surface = SDL_LoadBMP(image_path_hit);
 	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
 	textrue_hit = SDL_CreateTextureFromSurface(renderer, surface);
