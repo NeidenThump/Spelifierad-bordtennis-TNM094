@@ -103,6 +103,10 @@ bool checkedHit(int x, int y, int d, double hitx, double hity) {
 	}
 }
 
+int score(int hits) {
+	return(100 * (0.1 * hits));
+}
+
 //void waterdropeffect(double hx, double hy, double w, int c ) {
 //	int count = c; 
 //	RenderRectangle(Topleft_x(hx, w) - floor(count / 2), Topleft_y(hy, w) - floor(count / 2), 30, 30, 255 - (count * 2));
@@ -130,13 +134,13 @@ int main(int argc, char* args[]){
 
 	// Create texture
 	// taxture uses an bitmap image, change the path to make sure that the image can be loaded. 
-	const char* image_path = "C:/Users/Bergs/source/repos/Testsdl2/Project1/images/Pingisracket_fram.bmp";
+	const char* image_path = "../Spelifierad-bordtennis-TNM094/bilder/target_red_green_yellow.bmp";
 	surface = SDL_LoadBMP(image_path); 
-	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
+	//SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
 	textrue = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
-	const char* image_path_hit = "C:/Users/Bergs/source/repos/Testsdl2/Project1/images/circle.bmp";
+	const char* image_path_hit = "../Spelifierad-bordtennis-TNM094/bilder/circle.bmp";
 	surface = SDL_LoadBMP(image_path_hit);
 	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
 	textrue_hit = SDL_CreateTextureFromSurface(renderer, surface);
@@ -185,6 +189,9 @@ int main(int argc, char* args[]){
 			std::cout << "true";
 			x = createRandomCoordninate(window_width); // x- coordinate 
 			y = createRandomCoordninate(window_hight); // y coordinate 
+
+		}
+		else {
 
 		}
 		
