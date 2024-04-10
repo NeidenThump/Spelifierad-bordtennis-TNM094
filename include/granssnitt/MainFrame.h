@@ -9,10 +9,9 @@ public:
 	MainFrame(const wxString& title);
 
 private:
-	//void OnKeyEvent(wxKeyEvent& evt);
-	void OnInstClicked(wxCommandEvent& evt);
 	void OnAboutClicked(wxCommandEvent& evt);
-	void OnButtonClick(wxCommandEvent& event);
+    void OnMouseEnter(wxMouseEvent& event);
+	void OnMouseLeave(wxMouseEvent& event);
 
 };
 
