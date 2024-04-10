@@ -13,7 +13,7 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	//Bakgrundsfärg
 	panel->SetBackgroundColour(wxColor(38, 97, 153, 100));
 
-	// Load bitmap image
+	// Load bitmap image - logga
 	wxBitmap logga(wxT("../Spelifierad-bordtennis-TNM094/bilder/projection_pong.bmp"), wxBITMAP_TYPE_BMP);
 
 	wxImage logga_bitmap = logga.ConvertToImage();
@@ -25,35 +25,32 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	wxStaticBitmap* logga_static = new wxStaticBitmap(panel, wxID_ANY, logga_bitmap, wxPoint(50,0), wxDefaultSize);
 
 	// Load bitmap image
-	wxBitmap bitmapRacket(wxT("../Spelifierad-bordtennis-TNM094/bilder/Pingisracket_fram_bla.bmp"), wxBITMAP_TYPE_BMP);
-
-	wxImage racket_bitmap;
-	wxBitmapButton* buttonInst;
-	wxBitmapButton* buttonSpela;
-	wxStaticText* settings_label;
-	wxStaticText* play_label;
-	wxBitmapButton* buttonInfo;
-	wxStaticText* Info_label;
-
-	racket_bitmap = bitmapRacket.ConvertToImage();
+	wxBitmap bitmapSpela(wxT("../Spelifierad-bordtennis-TNM094/bilder/spela_btn.bmp"), wxBITMAP_TYPE_BMP);
+	wxImage spela_bitmap = bitmapSpela.ConvertToImage();
 
 	// Resize image, original; 794 1123
-	racket_bitmap = racket_bitmap.Scale(199, 281, wxIMAGE_QUALITY_HIGH);
+	spela_bitmap = spela_bitmap.Scale(199, 281, wxIMAGE_QUALITY_HIGH);
+
+	// Load bitmap image
+	wxBitmap bitmapAbout(wxT("../Spelifierad-bordtennis-TNM094/bilder/about_btn.bmp"), wxBITMAP_TYPE_BMP);
+	wxImage About_bitmap = bitmapAbout.ConvertToImage();
+
+	// Resize image, original; 794 1123
+	About_bitmap = About_bitmap.Scale(199, 281, wxIMAGE_QUALITY_HIGH);
 
 	/*
 	* Spelaknapp
-	*/
+
 	// Add text label
-	play_label = new wxStaticText(panel, wxID_ANY, wxT("Spela"), wxPoint(140, 340), wxDefaultSize, wxALIGN_CENTER);
+	wxStaticText* play_label = new wxStaticText(panel, wxID_ANY, wxT("Spela"), wxPoint(140, 340), wxDefaultSize, wxALIGN_CENTER);
 	play_label->SetFont(wxFont(wxFontInfo(20).Bold()));
 	//play_label->SetBackgroundStyle(wxBG_STYLE_TRANSPARENT);
-	play_label->SetBackgroundColour(wxColor(212, 0, 0, 100));
+	play_label->SetBackgroundColour(wxColor(212, 0, 0, 100));	*/
 
 	// Create button with BMP image
-	buttonSpela = new wxBitmapButton(panel, wxID_ANY, wxBitmap(racket_bitmap), wxPoint(75, 250), wxDefaultSize, wxBORDER_NONE);
+	wxBitmapButton* buttonSpela = new wxBitmapButton(panel, wxID_ANY, wxBitmap(spela_bitmap), wxPoint(75, 250), wxDefaultSize, wxBORDER_NONE);
 	buttonSpela->Bind(wxEVT_ENTER_WINDOW, &MainFrame::OnMouseEnter, this);
 	buttonSpela->Bind(wxEVT_LEAVE_WINDOW, &MainFrame::OnMouseLeave, this);
-
 
 	/*
 	* Inställningsknapp - i mån av tid!!!
@@ -65,21 +62,21 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	//settings_label->SetBackgroundStyle(wxBG_STYLE_TRANSPARENT);
 
 	// Create button with BMP image
-	buttonInst = new wxBitmapButton(panel, wxID_ANY, wxBitmap(racket_bitmap), wxPoint(350, 250), wxDefaultSize, wxBORDER_NONE);
+	wxBitmapButton* buttonInst = new wxBitmapButton(panel, wxID_ANY, wxBitmap(racket_bitmap), wxPoint(350, 250), wxDefaultSize, wxBORDER_NONE);
 	buttonInst->Bind(wxEVT_BUTTON, &MainFrame::OnInstClicked, this);*/
 
 
 	/*
 	* Informationsknapp
-	*/
 
 	// Add text label
-	Info_label = new wxStaticText(panel, wxID_ANY, wxT("Om spelet"), wxPoint(385, 340), wxDefaultSize, wxALIGN_CENTER);
+	wxStaticText* Info_label = new wxStaticText(panel, wxID_ANY, wxT("Om spelet"), wxPoint(385, 340), wxDefaultSize, wxALIGN_CENTER);
+	//STyle
 	Info_label->SetFont(wxFont(wxFontInfo(20).Bold()));
-	Info_label->SetBackgroundColour(wxColor(212, 0, 0, 100));
+	Info_label->SetBackgroundColour(wxColor(212, 0, 0, 100));	*/
 
 	// Create button with BMP image
-	buttonInfo = new wxBitmapButton(panel, wxID_ANY, wxBitmap(racket_bitmap), wxPoint(350, 250), wxDefaultSize, wxBORDER_NONE);
+	wxBitmapButton* buttonInfo = new wxBitmapButton(panel, wxID_ANY, wxBitmap(About_bitmap), wxPoint(350, 250), wxDefaultSize, wxBORDER_NONE);
 	buttonInfo->Bind(wxEVT_BUTTON, &MainFrame::OnAboutClicked, this);
 	// Bind mouse enter and leave events
 	buttonInfo->Bind(wxEVT_ENTER_WINDOW, &MainFrame::OnMouseEnter, this);
