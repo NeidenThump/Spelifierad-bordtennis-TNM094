@@ -3,6 +3,7 @@
 #include "About.h"
 #include <wx/wx.h>
 #include <wx/statline.h>
+#include <wx/statbmp.h>
 
 
 MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
@@ -11,8 +12,21 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 	panel->SetBackgroundColour(wxColor(38, 97, 153, 100));
 
-	wxStaticText* staticText = new wxStaticText(panel, wxID_ANY, "Placeholder; logga/titel", wxPoint(50, 50), wxSize(300, 50), wxALIGN_CENTER_HORIZONTAL);
-	staticText->SetBackgroundColour(*wxLIGHT_GREY);
+	// Load bitmap image
+	wxBitmap logga(wxT("../Spelifierad-bordtennis-TNM094/bilder/projection_pong.bmp"), wxBITMAP_TYPE_BMP);
+
+	wxImage logga_bitmap = logga.ConvertToImage();
+
+	// Resize image, original; 794 1123
+	logga_bitmap = logga_bitmap.Scale(250, 250, wxIMAGE_QUALITY_HIGH);
+
+
+	// Create a static bitmap control and set the bitmap
+	wxStaticBitmap* logga_static = new wxStaticBitmap(panel, wxID_ANY, logga_bitmap, wxPoint(50,0), wxDefaultSize);
+
+
+	/*wxStaticText* staticText = new wxStaticText(panel, wxID_ANY, "Placeholder; logga/titel", wxPoint(50, 50), wxSize(300, 50), wxALIGN_CENTER_HORIZONTAL);
+	staticText->SetBackgroundColour(*wxLIGHT_GREY);*/
 
 	// Load bitmap image
 	wxBitmap bitmapRacket(wxT("../Spelifierad-bordtennis-TNM094/bilder/Pingisracket_fram_bla.bmp"), wxBITMAP_TYPE_BMP);
@@ -41,17 +55,18 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	* Spelaknapp
 	*/
 	// Add text label
-	play_label = new wxStaticText(panel, wxID_ANY, wxT("Spela"), wxPoint(200, 360), wxDefaultSize, wxALIGN_CENTER);
-	play_label->SetFont(wxFont(wxFontInfo(12).Bold()));
+	play_label = new wxStaticText(panel, wxID_ANY, wxT("Spela"), wxPoint(140, 340), wxDefaultSize, wxALIGN_CENTER);
+	play_label->SetFont(wxFont(wxFontInfo(20).Bold()));
 	//play_label->SetBackgroundStyle(wxBG_STYLE_TRANSPARENT);
+	play_label->SetBackgroundColour(wxColor(212, 0, 0, 100));
 
 	// Create button with BMP image
 	buttonSpela = new wxBitmapButton(panel, wxID_ANY, wxBitmap(racket_bitmap), wxPoint(75, 250), wxDefaultSize, wxBORDER_NONE);
 
 
 	/*
-	* Inställningsknapp
-	*/
+	* Inställningsknapp - i mån av tid!!!
+	
 
 	// Add text label
 	settings_label = new wxStaticText(panel, wxID_ANY, wxT("Inställningar"), wxPoint(450, 360), wxDefaultSize, wxALIGN_CENTER);
@@ -60,7 +75,7 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 
 	// Create button with BMP image
 	buttonInst = new wxBitmapButton(panel, wxID_ANY, wxBitmap(racket_bitmap), wxPoint(350, 250), wxDefaultSize, wxBORDER_NONE);
-	buttonInst->Bind(wxEVT_BUTTON, &MainFrame::OnInstClicked, this);
+	buttonInst->Bind(wxEVT_BUTTON, &MainFrame::OnInstClicked, this);*/
 
 
 	/*
@@ -68,12 +83,12 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	*/
 
 	// Add text label
-	Info_label = new wxStaticText(panel, wxID_ANY, wxT("Om spelet"), wxPoint(650, 400), wxDefaultSize, wxALIGN_CENTER);
-	Info_label->SetFont(wxFont(wxFontInfo(12).Bold()));
-	//Info_label->SetBackgroundStyle(wxBG_STYLE_TRANSPARENT);
+	Info_label = new wxStaticText(panel, wxID_ANY, wxT("Om spelet"), wxPoint(385, 340), wxDefaultSize, wxALIGN_CENTER);
+	Info_label->SetFont(wxFont(wxFontInfo(20).Bold()));
+	Info_label->SetBackgroundColour(wxColor(212, 0, 0, 100));
 
 	// Create button with BMP image
-	buttonInfo = new wxBitmapButton(panel, wxID_ANY, wxBitmap(boll_bitmap), wxPoint(640, 350), wxDefaultSize, wxBORDER_NONE);
+	buttonInfo = new wxBitmapButton(panel, wxID_ANY, wxBitmap(racket_bitmap), wxPoint(350, 250), wxDefaultSize, wxBORDER_NONE);
 	buttonInfo->Bind(wxEVT_BUTTON, &MainFrame::OnAboutClicked, this);
 
 	CreateStatusBar();
@@ -83,7 +98,7 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	*/
 
 	// Create a horizontal line
-	wxStaticLine* line1 = new wxStaticLine(panel, wxID_ANY, wxPoint(0,150), wxSize(800, 15), wxLI_HORIZONTAL);
+	wxStaticLine* line1 = new wxStaticLine(panel, wxID_ANY, wxPoint(0,550), wxSize(800, 15), wxLI_HORIZONTAL);
 	line1->SetForegroundColour(*wxWHITE);
 
 	// Create a vertical line
