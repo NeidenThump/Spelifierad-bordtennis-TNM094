@@ -15,9 +15,9 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	staticText->SetBackgroundColour(*wxLIGHT_GREY);
 
 	// Load bitmap image
-	wxBitmap bitmapRacket(wxT("../WXTest2/Pingisracket_fram_bla.bmp"), wxBITMAP_TYPE_BMP);
+	wxBitmap bitmapRacket(wxT("../Spelifierad-bordtennis-TNM094/bilder/Pingisracket_fram_bla.bmp"), wxBITMAP_TYPE_BMP);
 	// Load bitmap image
-	wxBitmap bitmapBoll(wxT("../WXTest2/pingis_boll_bla_mindre.bmp"), wxBITMAP_TYPE_BMP);
+	wxBitmap bitmapBoll(wxT("../Spelifierad-bordtennis-TNM094/bilder/pingis_boll_bla_mindre.bmp"), wxBITMAP_TYPE_BMP);
 
 	wxImage racket_bitmap;
 	wxImage boll_bitmap;
