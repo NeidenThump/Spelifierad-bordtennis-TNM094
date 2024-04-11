@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <iostream>
 #include <random>
+#include <vector>
 
 // Global variables:
 SDL_Window* window = nullptr;
@@ -10,11 +11,68 @@ SDL_Renderer* renderer = nullptr;
 SDL_Surface* surface = nullptr;
 SDL_Texture* textrue = nullptr;
 SDL_Texture* textrue_hit = nullptr;
-int count = 1; 
+//int count = 1; 
 int hx; 
 int hy;
 int window_width = 1000;
 int window_hight = floor(window_width * 1.37 / 1.525);
+const int NUM_PARTICLES = 300;
+
+
+
+
+
+struct Particle {
+	int x, y; // Position
+	int vx, vy; // Velocity
+	int lifetime; // Lifetime of the particle
+};
+
+std::vector<Particle> createExplosionParticles(int x, int y) {
+	std::vector<Particle> particles;
+	for (int i = 0; i < NUM_PARTICLES; ++i) {
+		Particle p;
+		p.x = x;
+		p.y = y;
+		p.vx = rand() % 6 - 3; // Random velocity in range [-3, 3]
+		p.vy = rand() % 6 - 3;
+		p.lifetime = rand() % 15 + 15; // Random lifetime in range [30, 60] frames
+		particles.push_back(p);
+	}
+	return particles;
+}
+
+
+void renderExplosion(SDL_Renderer* renderer, int x, int y) {
+	std::vector<Particle> particles = createExplosionParticles(x, y);
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); 
+
+	// Main loop for rendering particles
+	for (int frame = 0; frame < 30; ++frame) { // Assuming the explosion lasts for 60 frames
+		//SDL_RenderClear(renderer);
+		for (Particle& p : particles) {
+			// Update particle position
+			p.x += p.vx;
+			p.y += p.vy;
+			p.lifetime--;
+
+			// Render particle
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, p.lifetime * 255 / 60); // Fade out particle
+			SDL_RenderDrawPoint(renderer, p.x, p.y);
+			//SDL_Rect rect = { p.x, p.y, 5, 5 }; // Particle size
+			//SDL_RenderFillRect(renderer, &rect);
+		}
+		SDL_RenderPresent(renderer);
+		SDL_Delay(10); // Delay to control frame rate
+	}
+}
+
+
+
+
+
+
+
 
 
 // function for rendering a rectangle with textrue
@@ -24,7 +82,7 @@ void RenderRectangle_target(int recx, int recy, int recw, int rech, int alpha) {
 	// create rectangle
 	SDL_Rect Rectangle = { recx,recy, recw,rech };
 	// set color 
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	//render 
 	//SDL_RenderFillRect(renderer, &Rectangle);
 
@@ -34,7 +92,7 @@ void RenderRectangle_target(int recx, int recy, int recw, int rech, int alpha) {
 
 	SDL_RenderCopy(renderer, textrue, NULL, &Rectangle);
 	
-	std::cout << " rec rendered ";
+	//std::cout << " rec rendered ";
 
 }
 void RenderRectangle_hit(int recx, int recy, int recw, int rech, int alpha) {
@@ -45,8 +103,6 @@ void RenderRectangle_hit(int recx, int recy, int recw, int rech, int alpha) {
 	SDL_SetTextureAlphaMod(textrue, alpha);
 
 	SDL_RenderCopy(renderer, textrue_hit, NULL, &Rectangle);
-
-	std::cout << " rec rendered ";
 }
 
 int Topleft_x(int x, int width) {
@@ -56,46 +112,18 @@ int Topleft_y(int y, int hight) {
 	return y - hight; 
 }
 
-//int drawLine(int side) {
-//	if (side == 0) {
-//		for (int i = 0; i <= 400; ++i) {
-//			SDL_RenderClear(renderer); 
-//			SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-//			//SDL_RenderDrawLine(renderer, 40, 0, 40, 2 * i );
-//			SDL_Rect rec = { 40,0,40, 2 * i };
-//			SDL_RenderFillRect(renderer, &rec);
-//			SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-//			SDL_Delay(10);
-//			SDL_RenderPresent(renderer);
-//		}
-//		return 1;
-//	}
-//	else {
-//		for (int i = 0; i <= 400; ++i) {
-//			SDL_RenderClear(renderer);
-//			SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-//			SDL_Rect rec = { 560,0,40, 2 * i };
-//			SDL_RenderFillRect(renderer, &rec);
-//			//SDL_RenderDrawLine(renderer, 600, 0,600 , 2 * i);
-//			SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-//			SDL_Delay(10);
-//			SDL_RenderPresent(renderer);
-//		}
-//		return 0; 
-//	}
-//}
 
 int createRandomCoordninate(int a) {
 	std::random_device rd; 
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> dist(0, a);
+	std::uniform_int_distribution<> dist(100, a);
 	return dist(gen); 
 }
 
 bool checkedHit(int x, int y, int d, double hitx, double hity) {
 	double distance = floor(sqrt(pow(x - hitx, 2) + pow(y - hity,2)));
 	std::cout << distance << "\n";
-	if (distance <= d + 30) {
+	if (distance <= d + 15) {
 		return true;
 	}
 	else {
@@ -103,15 +131,10 @@ bool checkedHit(int x, int y, int d, double hitx, double hity) {
 	}
 }
 
-int score(int hits) {
-	return(100 * (0.1 * hits));
+double scoreCalc(int hits) {
+	return((100 / hits) * 100 );
 }
 
-//void waterdropeffect(double hx, double hy, double w, int c ) {
-//	int count = c; 
-//	RenderRectangle(Topleft_x(hx, w) - floor(count / 2), Topleft_y(hy, w) - floor(count / 2), 30, 30, 255 - (count * 2));
-//
-//}
 
 
 
@@ -146,9 +169,13 @@ int main(int argc, char* args[]){
 
 	// Create texture
 	// taxture uses an bitmap image, change the path to make sure that the image can be loaded. 
+<<<<<<< Updated upstream
 	const char* image_path = "../bilder/target_red_green_yellow.bmp";
+=======
+	const char* image_path = "../Spelifierad-bordtennis-TNM094/bilder/target_utan_linjer.bmp";
+>>>>>>> Stashed changes
 	surface = SDL_LoadBMP(image_path); 
-	//SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
+	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
 	textrue = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
@@ -164,10 +191,12 @@ int main(int argc, char* args[]){
 
 	// add a function to get coordinates
 
-	int x = createRandomCoordninate(window_width); // x- coordinate 
-	int y = createRandomCoordninate(window_hight); // y coordinate 
+	int x = createRandomCoordninate(window_width - 200); // x- coordinate 
+	int y = createRandomCoordninate(window_hight - 200); // y coordinate 
 	int width = 100;
-	int hight = 150; 
+	int hight = 100; 
+	int hits = 1;
+	double score = 0; 
 
 
 
@@ -175,45 +204,41 @@ int main(int argc, char* args[]){
 	while (gameIsRunning) {
 		SDL_Event e;
 		
-		if (count == 1) {
-			 hx = createRandomCoordninate(x + 4); // x- coordinate 
-			 hy = createRandomCoordninate(y + 4); // y coordinate 
-		}
+	
+		hx = createRandomCoordninate(x + 4); // x- coordinate 
+		 hy = createRandomCoordninate(y + 4); // y coordinate 
+		
 
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT) {
 				gameIsRunning = false;
 			}
-		}
-			// render a "circle"  ( vattendroppe)  
+		}  
 
-			RenderRectangle_hit(Topleft_x(hx,width) - floor(count / 2), Topleft_y(hy,hight) - floor(count / 2), 30, 30, 255 - (count * 2));
-			//waterdropeffect(hx, hy, width, count);
-			/*++count; 
-			if (count == 125) {
-				count = 1; 
-			}*/
-			SDL_Delay(10); 
-
-			RenderRectangle_target(Topleft_x(x, width), Topleft_y(y, hight) , width , hight , 255 );
-
+		RenderRectangle_target(Topleft_x(x, width), Topleft_y(y, hight), width, hight, 255);
+		renderExplosion(renderer, hx, hy);
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		if (checkedHit(x, y, width, hx, hy) == true) {
 			std::cout << "true";
 			x = createRandomCoordninate(window_width); // x- coordinate 
 			y = createRandomCoordninate(window_hight); // y coordinate 
+			score = score + scoreCalc(hits);
+			std::cout << hits << "\n";
+			std::cout << score << "\n";
+			hits = 1; 
 
 		}
 		else {
+			hits++;
+		}
 
+		if (hits >= 15) {
+			gameIsRunning = false; 
 		}
 		
-		std::cout << hx << ", " << hy << "\n";
-		std::cout << x << "," << y << "\n";
-		
-
 		SDL_RenderPresent(renderer);
 		SDL_RenderClear(renderer);
-		SDL_Delay(1000);
+		SDL_Delay(500);
 	}
 	}
 
