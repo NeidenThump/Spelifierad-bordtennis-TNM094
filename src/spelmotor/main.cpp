@@ -21,7 +21,6 @@ const int NUM_PARTICLES = 300;
 
 
 
-
 struct Particle {
 	int x, y; // Position
 	int vx, vy; // Velocity
@@ -45,7 +44,7 @@ std::vector<Particle> createExplosionParticles(int x, int y) {
 
 void renderExplosion(SDL_Renderer* renderer, int x, int y) {
 	std::vector<Particle> particles = createExplosionParticles(x, y);
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); 
+	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); 
 
 	// Main loop for rendering particles
 	for (int frame = 0; frame < 30; ++frame) { // Assuming the explosion lasts for 60 frames
@@ -77,7 +76,7 @@ void renderExplosion(SDL_Renderer* renderer, int x, int y) {
 
 // function for rendering a rectangle with textrue
 void RenderRectangle_target(int recx, int recy, int recw, int rech, int alpha) {
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	//SDL_RenderClear(renderer);
 	// create rectangle
 	SDL_Rect Rectangle = { recx,recy, recw,rech };
@@ -163,22 +162,84 @@ int main(int argc, char* args[]){
 
 	// If rendering is enabled, proceed with creating window and renderer
 	if (renderEnabled) {
-	window = SDL_CreateWindow("C++ SDL2 Window", 10, 10, window_width ,window_hight, SDL_WINDOW_SHOWN);
-	
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	//window = SDL_CreateWindow("C++ SDL2 Window", 10, 10, window_width ,window_hight, SDL_WINDOW_SHOWN);
+
+	//// Add a short delay to allow the window to become visible
+	//SDL_Delay(100); // Delay for 100 milliseconds
+
+	//// Handle window events to wait until the window is shown
+	//bool windowShown = false;
+	//while (!windowShown) {
+	//	SDL_Event e;
+	//	while (SDL_PollEvent(&e)) {
+	//		if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_SHOWN) {
+	//			windowShown = true;
+	//		}
+	//	}
+	//	SDL_Delay(10); // Delay to prevent high CPU usage
+	//}
+	//
+	//renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			std::cout << "SDL initialization error: " << SDL_GetError() << std::endl;
+			return 1; // Exit the program with an error code
+		}
+		else {
+			std::cout << "SDL initialization successful." << std::endl;
+		}
+
+		window = SDL_CreateWindow("C++ SDL2 Window", 10, 10, window_width, window_hight, SDL_WINDOW_SHOWN);
+		if (!window) {
+			std::cout << "Window creation error: " << SDL_GetError() << std::endl;
+			SDL_Quit(); // Clean up SDL before exiting
+			return 1; // Exit the program with an error code
+		}
+		else {
+			std::cout << "Window creation successful." << std::endl;
+		}
+
+		// Add a short delay to allow the window to become visible
+		SDL_Delay(100); // Delay for 100 milliseconds
+
+		// Handle window events to wait until the window is shown
+		bool windowShown = false;
+		while (!windowShown) {
+			SDL_Event e;
+			while (SDL_PollEvent(&e)) {
+				if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_SHOWN) {
+					windowShown = true;
+				}
+			}
+			SDL_Delay(10); // Delay to prevent high CPU usage
+		}
+
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+		if (!renderer) {
+			std::cout << "Renderer creation error: " << SDL_GetError() << std::endl;
+			SDL_DestroyWindow(window); // Clean up window before exiting
+			SDL_Quit(); // Clean up SDL before exiting
+			return 1; // Exit the program with an error code
+		}
+		else {
+			std::cout << "Renderer creation successful." << std::endl;
+		}
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(renderer);
+
 
 	// Create texture
 	// taxture uses an bitmap image, change the path to make sure that the image can be loaded. 
-	const char* image_path = "C:/Users/Josephine/Documents/Kandidat/build/Debug/bilder/target_utan_linjer.bmp";
+	const char* image_path = "../Spelifierad-bordtennis-TNM094/bilder/target_utan_linjer.bmp";
 	//const char* image_path = "../Spelifierad-bordtennis-TNM094/bilder/target_utan_linjer.bmp";
 	surface = SDL_LoadBMP(image_path); 
 	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
 	textrue = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
-	const char* image_path_hit = "C:/Users/Josephine/Documents/Kandidat/build/Debug/bilder/circle.bmp";
+	const char* image_path_hit = "../Spelifierad-bordtennis-TNM094/bilder/circle.bmp";
 	surface = SDL_LoadBMP(image_path_hit);
-	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+	//SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
 	textrue_hit = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
@@ -196,7 +257,7 @@ int main(int argc, char* args[]){
 	double score = 0; 
 
 
-
+	
 	// Game loop: 
 	while (gameIsRunning) {
 		SDL_Event e;
@@ -212,6 +273,8 @@ int main(int argc, char* args[]){
 			}
 		}  
 
+		SDL_RenderClear(renderer);
+		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		RenderRectangle_target(Topleft_x(x, width), Topleft_y(y, hight), width, hight, 255);
 		renderExplosion(renderer, hx, hy);
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
