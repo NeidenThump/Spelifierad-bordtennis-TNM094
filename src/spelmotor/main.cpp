@@ -169,11 +169,8 @@ int main(int argc, char* args[]){
 
 	// Create texture
 	// taxture uses an bitmap image, change the path to make sure that the image can be loaded. 
-<<<<<<< Updated upstream
 	const char* image_path = "../bilder/target_red_green_yellow.bmp";
-=======
 	const char* image_path = "../Spelifierad-bordtennis-TNM094/bilder/target_utan_linjer.bmp";
->>>>>>> Stashed changes
 	surface = SDL_LoadBMP(image_path); 
 	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
 	textrue = SDL_CreateTextureFromSurface(renderer, surface);
