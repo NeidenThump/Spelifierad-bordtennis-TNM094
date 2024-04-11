@@ -49,6 +49,7 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 
 	// Create button with BMP image
 	wxBitmapButton* buttonSpela = new wxBitmapButton(panel, wxID_ANY, wxBitmap(spela_bitmap), wxPoint(75, 250), wxDefaultSize, wxBORDER_NONE);
+	buttonSpela->Bind(wxEVT_BUTTON, &MainFrame::OnButtonSpelaClicked, this);
 	buttonSpela->Bind(wxEVT_ENTER_WINDOW, &MainFrame::OnMouseEnter, this);
 	buttonSpela->Bind(wxEVT_LEAVE_WINDOW, &MainFrame::OnMouseLeave, this);
 
@@ -101,7 +102,7 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	wxStaticBitmap* vertical_static = new wxStaticBitmap(panel, wxID_ANY, vertical, wxPoint(600, 0), wxDefaultSize);
 
 
-	// Boll
+	// Bollar
 	// Load bitmap image
 	wxBitmap bitmapBoll(wxT("../Spelifierad-bordtennis-TNM094/bilder/pingis_boll_bla_mindre.bmp"), wxBITMAP_TYPE_BMP);
 	wxImage boll_bitmap = bitmapBoll.ConvertToImage();
@@ -118,7 +119,7 @@ MainFrame::MainFrame(const wxString& title) :wxFrame(nullptr, wxID_ANY, title) {
 	wxStaticBitmap* bitmapBoll_static8 = new wxStaticBitmap(panel, wxID_ANY, boll_bitmap, wxPoint(750, 50), wxDefaultSize);
 	
 }
-
+	
 void MainFrame::OnAboutClicked(wxCommandEvent& evt) {
 
 	About* about = new About("Om spelet");
@@ -127,6 +128,20 @@ void MainFrame::OnAboutClicked(wxCommandEvent& evt) {
 	about->Show(true);
 
 	//wxLogMessage("Button Clicked!");
+}
+
+void MainFrame::OnButtonSpelaClicked(wxCommandEvent& event) {
+	// Path to your SDL2 executable
+	wxString sdl2Executable = wxT("APP.exe");
+
+	// Command-line argument to enable rendering
+	wxString renderArgument = wxT("--render");
+
+	// Construct command to start SDL2 application with rendering enabled
+	wxString command = sdl2Executable + wxT(" ") + renderArgument;
+
+	// Launch SDL2 application
+	wxExecute(command);
 }
 
 void MainFrame::OnMouseEnter(wxMouseEvent& event) {

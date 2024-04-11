@@ -10,6 +10,7 @@ public:
 
 private:
 	void OnAboutClicked(wxCommandEvent& evt);
+	void OnButtonSpelaClicked(wxCommandEvent& event);
     void OnMouseEnter(wxMouseEvent& event);
 	void OnMouseLeave(wxMouseEvent& event);
 

@@ -119,6 +119,15 @@ int score(int hits) {
 
 
 int main(int argc, char* args[]){
+	// Check if the command-line argument to start rendering is provided
+	bool renderEnabled = false;
+	for (int i = 1; i < argc; ++i) {
+		if (strcmp(args[i], "--render") == 0) {
+			renderEnabled = true;
+			break;
+		}
+	}
+	
 	// create window data type
 	
 
@@ -128,19 +137,22 @@ int main(int argc, char* args[]){
 	else {
 		std::cout << "SDL window is ready to go!\n";
 	}
+
+	// If rendering is enabled, proceed with creating window and renderer
+	if (renderEnabled) {
 	window = SDL_CreateWindow("C++ SDL2 Window", 10, 10, window_width ,window_hight, SDL_WINDOW_SHOWN);
 	
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 	// Create texture
 	// taxture uses an bitmap image, change the path to make sure that the image can be loaded. 
-	const char* image_path = "../Spelifierad-bordtennis-TNM094/bilder/target_red_green_yellow.bmp";
+	const char* image_path = "../bilder/target_red_green_yellow.bmp";
 	surface = SDL_LoadBMP(image_path); 
 	//SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF,0xFF, 0xFF));
 	textrue = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
-	const char* image_path_hit = "../Spelifierad-bordtennis-TNM094/bilder/circle.bmp";
+	const char* image_path_hit = "../bilder/circle.bmp";
 	surface = SDL_LoadBMP(image_path_hit);
 	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
 	textrue_hit = SDL_CreateTextureFromSurface(renderer, surface);
@@ -203,6 +215,8 @@ int main(int argc, char* args[]){
 		SDL_RenderClear(renderer);
 		SDL_Delay(1000);
 	}
+	}
+
 	SDL_DestroyTexture(textrue);
 	SDL_DestroyTexture(textrue_hit);
 	SDL_DestroyWindow(window);
