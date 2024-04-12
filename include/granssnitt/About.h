@@ -8,6 +8,7 @@ public:
 
 private:
 	void OnBackClicked(wxCommandEvent& evt);
+	void OnLiuClicked(wxCommandEvent& evt);
 	void OnMouseEnter(wxMouseEvent& event);
 	void OnMouseLeave(wxMouseEvent& event);
 };
