@@ -1,6 +1,6 @@
 // This script uses sdl, make sure you have sdl2 installed to use the script; https://lazyfoo.net/tutorials/SDL/01_hello_SDL/windows/msvc2019/index.php
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -121,7 +121,7 @@ int createRandomCoordninate(int a) {
 
 bool checkedHit(int x, int y, int d, double hitx, double hity) {
 	double distance = floor(sqrt(pow(x - hitx, 2) + pow(y - hity,2)));
-	std::cout << distance << "\n";
+	//std::cout << distance << "\n";
 	if (distance <= d + 15) {
 		return true;
 	}
@@ -137,6 +137,7 @@ double scoreCalc(int hits) {
 
 
 
+//int numDisplays = SDL_GetNumVideoDisplays();
 
 
 
@@ -149,10 +150,11 @@ int main(int argc, char* args[]){
 			break;
 		}
 	}
+
 	
 	// create window data type
 	
-
+	
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		std::cout << "SDL error" << SDL_GetError();
 	}
@@ -160,27 +162,22 @@ int main(int argc, char* args[]){
 		std::cout << "SDL window is ready to go!\n";
 	}
 
+	// display windiow on second screen
+	// if you don't have 2 screens, you have to remove this code and uncomment the other window creation code
+	int numDisplays = SDL_GetNumVideoDisplays();
+	SDL_Rect secondDisplayBounds;
+	SDL_GetDisplayBounds(1, &secondDisplayBounds);
+
+	SDL_Window* window = SDL_CreateWindow("Window on Second Screen",
+		secondDisplayBounds.x , // Adjust the x-coordinate as needed
+		secondDisplayBounds.y + 20, // Adjust the y-coordinate as needed
+		secondDisplayBounds.w, // Width
+		secondDisplayBounds.h, // Height
+		SDL_WINDOW_SHOWN);
+
+
 	// If rendering is enabled, proceed with creating window and renderer
 	if (renderEnabled) {
-	//window = SDL_CreateWindow("C++ SDL2 Window", 10, 10, window_width ,window_hight, SDL_WINDOW_SHOWN);
-
-	//// Add a short delay to allow the window to become visible
-	//SDL_Delay(100); // Delay for 100 milliseconds
-
-	//// Handle window events to wait until the window is shown
-	//bool windowShown = false;
-	//while (!windowShown) {
-	//	SDL_Event e;
-	//	while (SDL_PollEvent(&e)) {
-	//		if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_SHOWN) {
-	//			windowShown = true;
-	//		}
-	//	}
-	//	SDL_Delay(10); // Delay to prevent high CPU usage
-	//}
-	//
-	//renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			std::cout << "SDL initialization error: " << SDL_GetError() << std::endl;
 			return 1; // Exit the program with an error code
@@ -189,7 +186,7 @@ int main(int argc, char* args[]){
 			std::cout << "SDL initialization successful." << std::endl;
 		}
 
-		window = SDL_CreateWindow("C++ SDL2 Window", 10, 10, window_width, window_hight, SDL_WINDOW_SHOWN);
+		//window = SDL_CreateWindow("C++ SDL2 Window", 10, 10, window_width, window_hight, SDL_WINDOW_SHOWN);
 		if (!window) {
 			std::cout << "Window creation error: " << SDL_GetError() << std::endl;
 			SDL_Quit(); // Clean up SDL before exiting
@@ -262,7 +259,7 @@ int main(int argc, char* args[]){
 	while (gameIsRunning) {
 		SDL_Event e;
 		
-	
+		std::cout <<  SDL_GetNumVideoDisplays();
 		hx = createRandomCoordninate(x + 4); // x- coordinate 
 		 hy = createRandomCoordninate(y + 4); // y coordinate 
 		
