@@ -38,6 +38,7 @@ target_link_libraries(UI PRIVATE ${wxWidgets_LIBRARIES})
 
 
 find_package(SDL2 REQUIRED)
+find_package(SDL2_ttf)
 
 add_executable(APP src/spelmotor/main.cpp)
 target_link_libraries(APP PRIVATE SDL2::SDL2)

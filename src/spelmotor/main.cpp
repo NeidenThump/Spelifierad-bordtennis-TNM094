@@ -1,7 +1,7 @@
 // This script uses sdl, make sure you have sdl2 installed to use the script; https://lazyfoo.net/tutorials/SDL/01_hello_SDL/windows/msvc2019/index.php
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
-//#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -12,6 +12,7 @@ SDL_Renderer* renderer = nullptr;
 SDL_Surface* surface = nullptr;
 SDL_Texture* textrue = nullptr;
 SDL_Texture* textrue_hit = nullptr;
+
 //int count = 1; 
 int hx; 
 int hy;
@@ -167,6 +168,16 @@ int main(int argc, char* args[]){
 	else {
 		std::cout << "SDL window is ready to go!\n";
 	}
+
+	/*if (TTF_Init() != 0) {
+		std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+		SDL_Quit();
+		return 1;
+	}*/
+		TTF_Font* font = TTF_OpenFont("C:/Users/Bergs/Downloads/Open_Sans/static/OpenSans_Condensed-Bold.ttf", 24);
+	
+
+		
 
 	// display windiow on second screen
 	// if you don't have 2 screens, you have to remove this code and uncomment the other window creation code
