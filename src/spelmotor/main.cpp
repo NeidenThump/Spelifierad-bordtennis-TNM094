@@ -1,6 +1,7 @@
 // This script uses sdl, make sure you have sdl2 installed to use the script; https://lazyfoo.net/tutorials/SDL/01_hello_SDL/windows/msvc2019/index.php
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -11,12 +12,11 @@ SDL_Renderer* renderer = nullptr;
 SDL_Surface* surface = nullptr;
 SDL_Texture* textrue = nullptr;
 SDL_Texture* textrue_hit = nullptr;
+
 //int count = 1; 
 int hx; 
 int hy;
-int window_width = 1000;
-int window_hight = floor(window_width * 1.37 / 1.525);
-const int NUM_PARTICLES = 300;
+const int NUM_PARTICLES = 500;
 
 
 
@@ -33,9 +33,9 @@ std::vector<Particle> createExplosionParticles(int x, int y) {
 		Particle p;
 		p.x = x;
 		p.y = y;
-		p.vx = rand() % 6 - 3; // Random velocity in range [-3, 3]
-		p.vy = rand() % 6 - 3;
-		p.lifetime = rand() % 15 + 15; // Random lifetime in range [30, 60] frames
+		p.vx = (rand() % 20 - 10)/2; 
+		p.vy = (rand() % 20 - 10)/2;
+		p.lifetime = rand() % 5 + 5; // Random lifetime in range [30, 60] frames
 		particles.push_back(p);
 	}
 	return particles;
@@ -74,6 +74,7 @@ void renderExplosion(SDL_Renderer* renderer, int x, int y) {
 
 
 
+
 // function for rendering a rectangle with textrue
 void RenderRectangle_target(int recx, int recy, int recw, int rech, int alpha) {
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
@@ -98,17 +99,25 @@ void RenderRectangle_hit(int recx, int recy, int recw, int rech, int alpha) {
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	SDL_Rect Rectangle = { recx,recy, recw,rech };
 	// Alpha blend: 
-	SDL_SetTextureBlendMode(textrue, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureAlphaMod(textrue, alpha);
+	SDL_SetTextureBlendMode(textrue_hit, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureAlphaMod(textrue_hit, alpha);
 
 	SDL_RenderCopy(renderer, textrue_hit, NULL, &Rectangle);
 }
+
 
 int Topleft_x(int x, int width) {
 	return x - width;
 }
 int Topleft_y(int y, int hight) {
 	return y - hight; 
+}
+void renderWaterdrop(int x, int y) {
+	for (int frame = 0; frame < 30; ++frame) {
+		RenderRectangle_hit(Topleft_x(x, (20+frame)/2), Topleft_y(y,(20+frame)/2), 20 + frame, 20 + frame, 255 - 6*frame);
+		SDL_RenderPresent(renderer);
+		SDL_Delay(10);
+	}
 }
 
 
@@ -137,8 +146,6 @@ double scoreCalc(int hits) {
 
 
 
-//int numDisplays = SDL_GetNumVideoDisplays();
-
 
 
 int main(int argc, char* args[]){
@@ -161,6 +168,16 @@ int main(int argc, char* args[]){
 	else {
 		std::cout << "SDL window is ready to go!\n";
 	}
+
+	/*if (TTF_Init() != 0) {
+		std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+		SDL_Quit();
+		return 1;
+	}*/
+		TTF_Font* font = TTF_OpenFont("C:/Users/Bergs/Downloads/Open_Sans/static/OpenSans_Condensed-Bold.ttf", 24);
+	
+
+		
 
 	// display windiow on second screen
 	// if you don't have 2 screens, you have to remove this code and uncomment the other window creation code
@@ -195,6 +212,7 @@ int main(int argc, char* args[]){
 		else {
 			std::cout << "Window creation successful." << std::endl;
 		}
+		
 
 		// Add a short delay to allow the window to become visible
 		SDL_Delay(100); // Delay for 100 milliseconds
@@ -236,33 +254,29 @@ int main(int argc, char* args[]){
 
 	const char* image_path_hit = "../Spelifierad-bordtennis-TNM094/bilder/circle.bmp";
 	surface = SDL_LoadBMP(image_path_hit);
-	//SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+	SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
 	textrue_hit = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_FreeSurface(surface);
 
-
+	
 	bool gameIsRunning = true; 
 	int count = 1;
 
 	// add a function to get coordinates
 
-	int x = createRandomCoordninate(window_width - 200); // x- coordinate 
-	int y = createRandomCoordninate(window_hight - 200); // y coordinate 
+	int x = createRandomCoordninate(secondDisplayBounds.w - 200); // x- coordinate 
+	int y = createRandomCoordninate(secondDisplayBounds.h - 200); // y coordinate 
 	int width = 100;
 	int hight = 100; 
 	int hits = 1;
 	double score = 0; 
-
-
 	
 	// Game loop: 
 	while (gameIsRunning) {
 		SDL_Event e;
-		
-		std::cout <<  SDL_GetNumVideoDisplays();
 		hx = createRandomCoordninate(x + 4); // x- coordinate 
-		 hy = createRandomCoordninate(y + 4); // y coordinate 
-		
+		hy = createRandomCoordninate(y + 4); // y coordinate 
+
 
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT) {
@@ -272,13 +286,14 @@ int main(int argc, char* args[]){
 
 		SDL_RenderClear(renderer);
 		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		RenderRectangle_target(Topleft_x(x, width), Topleft_y(y, hight), width, hight, 255);
-		renderExplosion(renderer, hx, hy);
+		RenderRectangle_target(Topleft_x(x, width/2), Topleft_y(y, hight/2), width, hight, 255);
+		//renderExplosion(renderer, hx, hy);
+		renderWaterdrop(hx,hy); 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		if (checkedHit(x, y, width, hx, hy) == true) {
 			std::cout << "true";
-			x = createRandomCoordninate(window_width); // x- coordinate 
-			y = createRandomCoordninate(window_hight); // y coordinate 
+			x = createRandomCoordninate(secondDisplayBounds.w-100); // x- coordinate 
+			y = createRandomCoordninate(secondDisplayBounds.h-100); // y coordinate 
 			score = score + scoreCalc(hits);
 			std::cout << hits << "\n";
 			std::cout << score << "\n";
