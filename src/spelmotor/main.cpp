@@ -272,8 +272,25 @@ int main(int argc, char* args[]){
 	int hits = 1;
 	double score = 0; 
 	
+	//Websocket
+	std::cout << "Starting client..." << std::endl;
+	WebSocketClient client("localhost", "30000");
+
+	while (!client.connect()) {
+		std::cout << "Could not connect, retrying..." << std::endl;
+	}
+	std::cout << "Connected to MATLAB successfully!" << std::endl;
+
 	// Game loop: 
-	while (gameIsRunning) {
+	while (gameIsRunning and client.isConnected()) {
+		try {
+			auto [x, y] = readCoordinates(client.read());
+			std::cout << "X coordinate: " << x << ", Y coordinate: " << y << std::endl;
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error: " << e.what() << std::endl;
+		}
+
 		SDL_Event e;
 		hx = createRandomCoordninate(x + 4); // x- coordinate 
 		hy = createRandomCoordninate(y + 4); // y coordinate 
@@ -313,7 +330,9 @@ int main(int argc, char* args[]){
 		SDL_RenderClear(renderer);
 		SDL_Delay(500);
 	}
+	client.close();
 	}
+	
 
 	SDL_DestroyTexture(textrue);
 	SDL_DestroyTexture(textrue_hit);
