@@ -4,6 +4,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <random>
+#include <string>
 #include <vector>
 
 // Global variables:
@@ -169,13 +170,13 @@ int main(int argc, char* args[]){
 		std::cout << "SDL window is ready to go!\n";
 	}
 
-	/*if (TTF_Init() != 0) {
+	if (TTF_Init() != 0) {
 		std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
 		SDL_Quit();
 		return 1;
-	}*/
-		TTF_Font* font = TTF_OpenFont("C:/Users/Bergs/Downloads/Open_Sans/static/OpenSans_Condensed-Bold.ttf", 24);
+	}
 	
+	TTF_Font* font = TTF_OpenFont("C:/Users/Bergs/Downloads/Open_Sans/static/OpenSans_Condensed-Bold.ttf", 24);
 
 		
 
@@ -243,6 +244,18 @@ int main(int argc, char* args[]){
 		SDL_RenderClear(renderer);
 
 
+		
+		if (!font) {
+			std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
+			SDL_DestroyRenderer(renderer);
+			SDL_DestroyWindow(window);
+			TTF_Quit();
+			SDL_Quit();
+			return 1;
+		}
+
+
+
 	// Create texture
 	// taxture uses an bitmap image, change the path to make sure that the image can be loaded. 
 	const char* image_path = "../Spelifierad-bordtennis-TNM094/bilder/target_utan_linjer.bmp";
@@ -269,7 +282,9 @@ int main(int argc, char* args[]){
 	int width = 100;
 	int hight = 100; 
 	int hits = 1;
-	double score = 0; 
+	int score = 0; 
+	std::string scoreText = "Score: " + std::to_string(score);
+
 	
 	// Game loop: 
 	while (gameIsRunning) {
@@ -284,7 +299,31 @@ int main(int argc, char* args[]){
 			}
 		}  
 
+
+		SDL_Color color = { 0,0,0 }; 
+		SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText.c_str(), color); 
+		if (!textSurface) {
+			std::cerr << "TTF_RenderText_Solid Error: " << TTF_GetError() << std::endl;
+			break;
+		}
+
+		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		if (!textTexture) {
+			std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
+			SDL_FreeSurface(textSurface);
+			break;
+		}
+
+		int textWidth = 2* textSurface->w;
+		int textHeight = 2* textSurface->h;
+		int posX = 10;
+		int posY = 10;
+		SDL_Rect destRect = { posX, posY, textWidth, textHeight };
+
+		
+		scoreText = "Score: " + std::to_string(score);
 		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
 		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		RenderRectangle_target(Topleft_x(x, width/2), Topleft_y(y, hight/2), width, hight, 255);
 		//renderExplosion(renderer, hx, hy);
@@ -304,19 +343,57 @@ int main(int argc, char* args[]){
 			hits++;
 		}
 
-		if (hits >= 15) {
+		if (hits >= 10) {
+
+
+			std::string gameOver = "GAME OVER \n  Score: " + std::to_string(score);
+
+			SDL_Surface* GOSurface = TTF_RenderText_Solid(font, gameOver.c_str(), color);
+			if (!GOSurface) {
+				std::cerr << "TTF_RenderText_Solid Error: " << TTF_GetError() << std::endl;
+				break;
+			}
+
+			SDL_Texture* GOTexture = SDL_CreateTextureFromSurface(renderer, GOSurface);
+			if (!GOTexture) {
+				std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
+				SDL_FreeSurface(textSurface);
+				break;
+			}
+
+			int pX = (secondDisplayBounds.w/2 - 2*GOSurface->w) ;
+			int pY = secondDisplayBounds.h/4;
+			SDL_Rect dRect = { pX, pY, secondDisplayBounds.w/2,  secondDisplayBounds.h/2 };
+
+
+			SDL_RenderClear(renderer);
+			SDL_RenderCopy(renderer, GOTexture, NULL, &dRect);
+			SDL_RenderPresent(renderer);
+
+
+			SDL_DestroyTexture(textTexture);
+			SDL_FreeSurface(textSurface);
+			SDL_DestroyTexture(GOTexture);
+			SDL_FreeSurface(GOSurface);
+
+			SDL_Delay(5000);
 			gameIsRunning = false; 
+
 		}
 		
 		SDL_RenderPresent(renderer);
+		SDL_DestroyTexture(textTexture);
+		SDL_FreeSurface(textSurface);
+
 		SDL_RenderClear(renderer);
 		SDL_Delay(500);
 	}
 	}
-
+	TTF_CloseFont(font);
 	SDL_DestroyTexture(textrue);
 	SDL_DestroyTexture(textrue_hit);
 	SDL_DestroyWindow(window);
+	TTF_Quit();
 	SDL_Quit();
 
 	return 0;
