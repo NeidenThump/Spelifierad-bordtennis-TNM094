@@ -2,6 +2,8 @@
   "dependencies": [
     "sdl2",
     "wxwidgets",
-    "sdl2-ttf"
+    "sdl2-ttf",
+    "boost-beast",
+    "boost-asio"
   ]
 }

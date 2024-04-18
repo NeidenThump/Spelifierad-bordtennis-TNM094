@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-
-
 find_package(wxWidgets REQUIRED COMPONENTS net core base)
 include(${wxWidgets_USE_FILE})
 
@@ -34,16 +32,28 @@ target_include_directories(UI PRIVATE ${CMAKE_SOURCE_DIR}/include/granssnitt)
 # Link with wxWidgets
 target_link_libraries(UI PRIVATE ${wxWidgets_LIBRARIES})
 
+# Source and header files
+set(SOURCES
+    src/spelmotor/main.cpp
+    src/websocket/websocketClient.cpp
+)
+set(HEADERS
+    include/websocket/websocketClient.h
+)
 
-
-
+# Find required packages
 find_package(SDL2 REQUIRED)
-find_package(SDL2_ttf)
+find_package(SDL2_ttf REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
 
-add_executable(APP src/spelmotor/main.cpp)
-target_link_libraries(APP PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+# Add executable
+add_executable(APP ${SOURCES} ${HEADERS})
 
+# Include directories
+target_include_directories(APP PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
+# Link libraries
+target_link_libraries(APP PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf Boost::system)
 
 
 
