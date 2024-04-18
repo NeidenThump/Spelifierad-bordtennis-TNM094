@@ -284,7 +284,9 @@ int main(int argc, char* args[]){
 	// Game loop: 
 	while (gameIsRunning and client.isConnected()) {
 		try {
-			auto [x, y] = readCoordinates(client.read());
+				auto coordinates = readCoordinates(client.read());
+				hx = coordinates.first; 
+				hy = coordinates.second;
 			std::cout << "X coordinate: " << x << ", Y coordinate: " << y << std::endl;
 		}
 		catch (const std::exception& e) {
@@ -292,8 +294,8 @@ int main(int argc, char* args[]){
 		}
 
 		SDL_Event e;
-		hx = createRandomCoordninate(x + 4); // x- coordinate 
-		hy = createRandomCoordninate(y + 4); // y coordinate 
+		//hx = createRandomCoordninate(x + 4); // x- coordinate 
+		//hy = createRandomCoordninate(y + 4); // y coordinate 
 
 
 		while (SDL_PollEvent(&e)) {
