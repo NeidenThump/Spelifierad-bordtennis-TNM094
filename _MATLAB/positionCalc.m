@@ -15,15 +15,15 @@ soundMicC = bandpass(soundMicC,[7500, 8500], Fs);
 %[maxCorr3, maxIndex3] = max(abs(correlationBC));
 
 % Convert the lag index to time (assuming the audio files are sampled at a certain rate)
-deltaTAB = lagAB(maxIndex1) / Fs
-deltaTAC = lagAC(maxIndex2) / Fs
+deltaTAB = lagAB(maxIndex1) / Fs;
+deltaTAC = lagAC(maxIndex2) / Fs;
 %deltaTBC = lagBC(maxIndex3) / Fs;
 
 % Define anonymous functions for hyperbolas
 hAB = @(x, y) sqrt((x - micApos(1)).^2 + (y - micApos(2)).^2) - sqrt((x - micBpos(1)).^2 + (y - micBpos(2)).^2) - speedofsound * (deltaTAB);
 hAC = @(x, y) sqrt((x - micApos(1)).^2 + (y - micApos(2)).^2) - sqrt((x - micCpos(1)).^2 + (y - micCpos(2)).^2) - speedofsound * (deltaTAC);
 
-%Behövs inte, kanske kan användas för att få bättre precision
+%Not needed, might be used for higer precision.
 %hBC = @(x, y) sqrt((x - micBpos(1)).^2 + (y - micBpos(2)).^2) - sqrt((x - micCpos(1)).^2 + (y - micCpos(2)).^2) - speedofsound * (deltaTBC);
 
 % Estimate sound position by finding the intersection of hyperbolas
