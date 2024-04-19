@@ -6,6 +6,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include "websocket/websocketClient.h"
 
 // Global variables:
 SDL_Window* window = nullptr;
@@ -15,8 +16,6 @@ SDL_Texture* textrue = nullptr;
 SDL_Texture* textrue_hit = nullptr;
 
 //int count = 1; 
-int hx; 
-int hy;
 const int NUM_PARTICLES = 500;
 
 
@@ -176,7 +175,7 @@ int main(int argc, char* args[]){
 		return 1;
 	}
 	
-	TTF_Font* font = TTF_OpenFont("C:/Users/Bergs/Downloads/Open_Sans/static/OpenSans_Condensed-Bold.ttf", 24);
+	TTF_Font* font = TTF_OpenFont("../Spelifierad-bordtennis-TNM094/bilder/OpenSans_Condensed-Bold.ttf", 24);
 
 		
 
@@ -282,15 +281,36 @@ int main(int argc, char* args[]){
 	int width = 100;
 	int hight = 100; 
 	int hits = 1;
-	int score = 0; 
+	int score = 0;
+	int hx;
+	int hy;
 	std::string scoreText = "Score: " + std::to_string(score);
 
 	
+	//Websocket
+	std::cout << "Starting client..." << std::endl;
+	WebSocketClient client("localhost", "30000");
+
+	while (!client.connect()) {
+		std::cout << "Could not connect, retrying..." << std::endl;
+	}
+	std::cout << "Connected to MATLAB successfully!" << std::endl;
+
 	// Game loop: 
-	while (gameIsRunning) {
+	while (gameIsRunning and client.isConnected()) {
+		try {
+				auto coordinates = readCoordinates(client.read());
+				hx = coordinates.first; 
+				hy = coordinates.second;
+			std::cout << "X coordinate: " << hx << ", Y coordinate: " << hy << std::endl;
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error: " << e.what() << std::endl;
+		}
+
 		SDL_Event e;
-		hx = createRandomCoordninate(x + 4); // x- coordinate 
-		hy = createRandomCoordninate(y + 4); // y coordinate 
+		//hx = createRandomCoordninate(x + 4); // x- coordinate 
+		//hy = createRandomCoordninate(y + 4); // y coordinate 
 
 
 		while (SDL_PollEvent(&e)) {
@@ -343,7 +363,7 @@ int main(int argc, char* args[]){
 			hits++;
 		}
 
-		if (hits >= 10) {
+		if (hits >= 150) {
 
 
 			std::string gameOver = "GAME OVER \n  Score: " + std::to_string(score);
@@ -388,6 +408,7 @@ int main(int argc, char* args[]){
 		SDL_RenderClear(renderer);
 		SDL_Delay(500);
 	}
+	client.close();
 	}
 	TTF_CloseFont(font);
 	SDL_DestroyTexture(textrue);
