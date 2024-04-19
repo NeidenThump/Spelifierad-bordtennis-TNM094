@@ -176,7 +176,7 @@ int main(int argc, char* args[]){
 		return 1;
 	}
 	
-	TTF_Font* font = TTF_OpenFont("C:/Users/Bergs/Downloads/Open_Sans/static/OpenSans_Condensed-Bold.ttf", 24);
+	TTF_Font* font = TTF_OpenFont("../Spelifierad-bordtennis-TNM094/bilder/OpenSans_Condensed-Bold.ttf", 24);
 
 		
 
