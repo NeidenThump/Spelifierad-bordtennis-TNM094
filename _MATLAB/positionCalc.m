@@ -30,6 +30,6 @@ hAC = @(x, y) sqrt((x - micApos(1)).^2 + (y - micApos(2)).^2) - sqrt((x - micCpo
 f_intersect = @(x) [hAB(x(1), x(2)); hAC(x(1), x(2))];
 initial_guess = [0.5, 0.5]; % Initial guess for sound position
 
-options = optimoptions('fsolve','Algorithm','levenberg-marquardt');
-sound_position_estimate = fsolve(f_intersect, initial_guess,options);
+%options = optimoptions('fsolve','Algorithm','levenberg-marquardt');
+sound_position_estimate = fsolve(f_intersect, initial_guess);
 end

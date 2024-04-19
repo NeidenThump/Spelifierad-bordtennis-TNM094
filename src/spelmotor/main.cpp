@@ -16,8 +16,7 @@ SDL_Texture* textrue = nullptr;
 SDL_Texture* textrue_hit = nullptr;
 
 //int count = 1; 
-int hx; 
-int hy;
+
 const int NUM_PARTICLES = 500;
 
 
@@ -283,7 +282,9 @@ int main(int argc, char* args[]){
 	int width = 100;
 	int hight = 100; 
 	int hits = 1;
-	int score = 0; 
+	int score = 0;
+	int hx;
+	int hy;
 	std::string scoreText = "Score: " + std::to_string(score);
 
 	
@@ -302,7 +303,7 @@ int main(int argc, char* args[]){
 				auto coordinates = readCoordinates(client.read());
 				hx = coordinates.first; 
 				hy = coordinates.second;
-			std::cout << "X coordinate: " << x << ", Y coordinate: " << y << std::endl;
+			std::cout << "X coordinate: " << hx << ", Y coordinate: " << hy << std::endl;
 		}
 		catch (const std::exception& e) {
 			std::cerr << "Error: " << e.what() << std::endl;
@@ -363,7 +364,7 @@ int main(int argc, char* args[]){
 			hits++;
 		}
 
-		if (hits >= 10) {
+		if (hits >= 150) {
 
 
 			std::string gameOver = "GAME OVER \n  Score: " + std::to_string(score);
