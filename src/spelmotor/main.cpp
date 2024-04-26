@@ -114,7 +114,7 @@ int Topleft_y(int y, int hight) {
 }
 void renderWaterdrop(int x, int y) {
 	for (int frame = 0; frame < 30; ++frame) {
-		RenderRectangle_hit(Topleft_x(x, (20+frame)/2), Topleft_y(y,(20+frame)/2), 20 + frame, 20 + frame, 255 - 6*frame);
+		RenderRectangle_hit(Topleft_x(x, (40+frame)/2), Topleft_y(y,(40+frame)/2), 40 + frame, 40 + frame, 255 - 6*frame);
 		SDL_RenderPresent(renderer);
 		SDL_Delay(10);
 	}
@@ -186,9 +186,9 @@ int main(int argc, char* args[]){
 	SDL_GetDisplayBounds(1, &secondDisplayBounds);
 
 	SDL_Window* window = SDL_CreateWindow("Window on Second Screen",
-		secondDisplayBounds.x , // Adjust the x-coordinate as needed
+		secondDisplayBounds.x + std::floor((1080.0/1.12)*0.155) , // Adjust the x-coordinate as needed
 		secondDisplayBounds.y + 20, // Adjust the y-coordinate as needed
-		secondDisplayBounds.w, // Width
+		1483, // Width
 		secondDisplayBounds.h, // Height
 		SDL_WINDOW_SHOWN);
 
@@ -275,11 +275,11 @@ int main(int argc, char* args[]){
 	int count = 1;
 
 	// add a function to get coordinates
-
-	int x = createRandomCoordninate(secondDisplayBounds.w - 200); // x- coordinate 
-	int y = createRandomCoordninate(secondDisplayBounds.h - 200); // y coordinate 
-	int width = 100;
-	int hight = 100; 
+	
+	int width = 400;
+	int hight = 400; 
+	int x = createRandomCoordninate(1483 - width); // x- coordinate 
+	int y = createRandomCoordninate(secondDisplayBounds.h - width); // y coordinate 
 	int hits = 1;
 	int score = 0;
 	int hx;
@@ -300,12 +300,17 @@ int main(int argc, char* args[]){
 	while (gameIsRunning and client.isConnected()) {
 		try {
 				auto coordinates = readCoordinates(client.read());
-				hx = coordinates.first; 
-				hy = coordinates.second;
+				double positionxIN = (1483.0 / 1525.0) * coordinates.first;
+				double positionyIN = 1080 - (1080.0f / 1110.0f) * coordinates.second;
+				hx = static_cast<int>(positionxIN);
+				hy = static_cast<int>(positionyIN);
 			std::cout << "X coordinate: " << hx << ", Y coordinate: " << hy << std::endl;
+			std::cout << "X coordinate: " <<(positionxIN) << ", Y coordinate: " <<  (positionyIN) << std::endl;
 		}
 		catch (const std::exception& e) {
-			std::cerr << "Error: " << e.what() << std::endl;
+			/*std::cerr << "Error: " << e.what() << std::endl;*/
+			hx = 0;
+			hy = 0;
 		}
 
 		SDL_Event e;
@@ -334,8 +339,8 @@ int main(int argc, char* args[]){
 			break;
 		}
 
-		int textWidth = 2* textSurface->w;
-		int textHeight = 2* textSurface->h;
+		int textWidth = 3* textSurface->w;
+		int textHeight = 3* textSurface->h;
 		int posX = 10;
 		int posY = 10;
 		SDL_Rect destRect = { posX, posY, textWidth, textHeight };
@@ -349,21 +354,28 @@ int main(int argc, char* args[]){
 		//renderExplosion(renderer, hx, hy);
 		renderWaterdrop(hx,hy); 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		if (checkedHit(x, y, width, hx, hy) == true) {
+		if (checkedHit(x, y, width/2, hx, hy) == true) {
 			std::cout << "true";
-			x = createRandomCoordninate(secondDisplayBounds.w-100); // x- coordinate 
-			y = createRandomCoordninate(secondDisplayBounds.h-100); // y coordinate 
+			x = createRandomCoordninate(1483-width); // x- coordinate 
+			y = createRandomCoordninate(secondDisplayBounds.h-width); // y coordinate 
+			hx = -10; hy = -10;
+			SDL_RenderClear(renderer);
 			score = score + scoreCalc(hits);
+			SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+			RenderRectangle_target(Topleft_x(x, width / 2), Topleft_y(y, hight / 2), width, hight, 255);
 			std::cout << hits << "\n";
 			std::cout << score << "\n";
 			hits = 1; 
 
 		}
 		else {
+			if (hx == 0 and hy == 0) {
+				continue;
+			}
 			hits++;
 		}
 
-		if (hits >= 150) {
+		if (hits >= 10) {
 
 
 			std::string gameOver = "GAME OVER \n  Score: " + std::to_string(score);
@@ -381,9 +393,9 @@ int main(int argc, char* args[]){
 				break;
 			}
 
-			int pX = (secondDisplayBounds.w/2 - 2*GOSurface->w) ;
+			int pX = std::floor(1483/2 - 2*GOSurface->w) ;
 			int pY = secondDisplayBounds.h/4;
-			SDL_Rect dRect = { pX, pY, secondDisplayBounds.w/2,  secondDisplayBounds.h/2 };
+			SDL_Rect dRect = { pX, pY, 1483/2,  secondDisplayBounds.h/2 };
 
 
 			SDL_RenderClear(renderer);
