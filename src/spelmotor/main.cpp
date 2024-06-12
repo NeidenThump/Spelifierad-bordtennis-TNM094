@@ -281,7 +281,7 @@ int main(int argc, char* args[]){
 
 	// add a function to get coordinates
 	
-	int width = 300;	//Made the targets smaller.
+	int width = 300;	
 	int hight = 300;
 	int totalHits = 0;  // Track total number of hits
 	int x = createRandomCoordninate(1483 - width); // x- coordinate 
@@ -332,7 +332,7 @@ int main(int argc, char* args[]){
 				double positionyIN = 1080 - (1080.0f / 1110.0f) * coordinates.second;
 				hx = static_cast<int>(positionxIN);
 				hy = static_cast<int>(positionyIN);
-			//std::cout << "incoming X: " << coordinates.first << ", incoming Y: " << coordinates.second << std::endl;
+
 			std::cout << "X coordinate: " << hx << ", Y coordinate: " << hy << std::endl;
 			std::cout << "X coordinate: " <<(positionxIN) << ", Y coordinate: " <<  (positionyIN) << std::endl;
 		}
@@ -383,7 +383,7 @@ int main(int argc, char* args[]){
 		
 		// Loop through each target to render them
 		for (const auto& target : targets) {
-			// Render måltavla
+			// Render target.
 			// Topleft_x and Topleft_y calculate the top-left corner based on the center coordinates
 			// RenderRectangle_target renderar måltavla texturen på beräknad position med specifierad width, height, och alpha value (opacity)
 			RenderRectangle_target(Topleft_x(target.x, width / 2), Topleft_y(target.y, hight / 2), width, hight, 255);
@@ -426,7 +426,7 @@ int main(int argc, char* args[]){
 			}
 			else {
 				if (hx == 0 and hy == 0) {
-					continue; //Potential bug: continue should continue the outer while loop, not inner for loop.
+					continue;
 				}
 				hits++;
 			}

@@ -3,7 +3,6 @@ function [sound_position_estimate] = positionCalc(Fs,speedofsound,micApos,micBpo
 soundMicA = bandpass(soundMicA,[7500, 8500], Fs);
 soundMicB = bandpass(soundMicB,[7500, 8500], Fs);
 soundMicC = bandpass(soundMicC,[7500, 8500], Fs);
-%soundMicD = bandpass(soundMicD,[7500, 8500], Fs);
 
 % Compute the cross-correlation between the two signals
 [correlationAB, lagAB] = xcorr(soundMicA, soundMicB);
