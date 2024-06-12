@@ -17,7 +17,7 @@ SDL_Texture* textrue_hit = nullptr;
 
 //int count = 1; 
 const int NUM_PARTICLES = 500;
-
+const int NUM_TARGETS = 3;  // Number of targets.
 
 
 
@@ -143,6 +143,11 @@ double scoreCalc(int hits) {
 	return((100 / hits) * 100 );
 }
 
+// Function to check if targets overlap
+bool targetsOverlap(int x1, int y1, int x2, int y2, int diameter) {
+	double distance = sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+	return distance < diameter;
+}
 
 
 
@@ -276,8 +281,9 @@ int main(int argc, char* args[]){
 
 	// add a function to get coordinates
 	
-	int width = 400;
-	int hight = 400; 
+	int width = 300;	//Made the targets smaller.
+	int hight = 300;
+	int totalHits = 0;  // Track total number of hits
 	int x = createRandomCoordninate(1483 - width); // x- coordinate 
 	int y = createRandomCoordninate(secondDisplayBounds.h - width); // y coordinate 
 	int hits = 1;
@@ -285,6 +291,28 @@ int main(int argc, char* args[]){
 	int hx;
 	int hy;
 	std::string scoreText = "Score: " + std::to_string(score);
+
+	// Create a vector to store target coordinates
+	std::vector<SDL_Point> targets(NUM_TARGETS);
+
+	// Loop through each target to initialize its position
+	for (int i = 0; i < NUM_TARGETS; ++i) {
+		bool validPosition; // Flag to check if the position is valid
+		do {
+			validPosition = true;
+			// Generate random coordinates for the target within bounds
+			targets[i].x = createRandomCoordninate(1483 - width);
+			targets[i].y = createRandomCoordninate(secondDisplayBounds.h - width);
+			// Check if the new target position overlaps with any existing targets
+			for (int j = 0; j < i; ++j) {
+				if (targetsOverlap(targets[i].x, targets[i].y, targets[j].x, targets[j].y, width)) {
+					validPosition = false; // Set flag to false if overlap is detected
+					break; // Exit the inner loop if an overlap is found
+				}
+			}
+		} while (!validPosition); // Repeat until a valid position is found
+	}
+
 
 	
 	//Websocket
@@ -304,6 +332,7 @@ int main(int argc, char* args[]){
 				double positionyIN = 1080 - (1080.0f / 1110.0f) * coordinates.second;
 				hx = static_cast<int>(positionxIN);
 				hy = static_cast<int>(positionyIN);
+			//std::cout << "incoming X: " << coordinates.first << ", incoming Y: " << coordinates.second << std::endl;
 			std::cout << "X coordinate: " << hx << ", Y coordinate: " << hy << std::endl;
 			std::cout << "X coordinate: " <<(positionxIN) << ", Y coordinate: " <<  (positionyIN) << std::endl;
 		}
@@ -350,36 +379,63 @@ int main(int argc, char* args[]){
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
 		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		RenderRectangle_target(Topleft_x(x, width/2), Topleft_y(y, hight/2), width, hight, 255);
+		//RenderRectangle_target(Topleft_x(x, width/2), Topleft_y(y, hight/2), width, hight, 255);
+		
+		// Loop through each target to render them
+		for (const auto& target : targets) {
+			// Render måltavla
+			// Topleft_x and Topleft_y calculate the top-left corner based on the center coordinates
+			// RenderRectangle_target renderar måltavla texturen på beräknad position med specifierad width, height, och alpha value (opacity)
+			RenderRectangle_target(Topleft_x(target.x, width / 2), Topleft_y(target.y, hight / 2), width, hight, 255);
+		}
+
 		//renderExplosion(renderer, hx, hy);
 		renderWaterdrop(hx,hy); 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		if (checkedHit(x, y, width/2, hx, hy) == true) {
-			std::cout << "true";
-			x = createRandomCoordninate(1483-width); // x- coordinate 
-			y = createRandomCoordninate(secondDisplayBounds.h-width); // y coordinate 
-			hx = -10; hy = -10;
-			SDL_RenderClear(renderer);
-			score = score + scoreCalc(hits);
-			SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-			RenderRectangle_target(Topleft_x(x, width / 2), Topleft_y(y, hight / 2), width, hight, 255);
-			std::cout << hits << "\n";
-			std::cout << score << "\n";
-			hits = 1; 
+		for (int i = 0; i < NUM_TARGETS; ++i) { // Loop through each target to check if it is hit
+			if (checkedHit(targets[i].x, targets[i].y, width / 2, hx, hy)) { // Check if the current target is hit
+				bool validPosition;
+				do {
+					validPosition = true;
+					// Generate new random coordinates for the hit target
+					targets[i].x = createRandomCoordninate(1483 - width);
+					targets[i].y = createRandomCoordninate(secondDisplayBounds.h - width);
+					// Ensure the new target position does not overlap with other targets
+					for (int j = 0; j < NUM_TARGETS; ++j) {
+						if (i != j && targetsOverlap(targets[i].x, targets[i].y, targets[j].x, targets[j].y, width)) {
+							validPosition = false;
+							break;
+						}
+					}
+				} while (!validPosition); // Repeat until a valid position is found
 
-		}
-		else {
-			if (hx == 0 and hy == 0) {
-				continue;
+				// Reset the hit coordinates
+				hx = -10; hy = -10;
+				SDL_RenderClear(renderer);
+				score = score + scoreCalc(hits); // Update the score
+				totalHits++;  // Increment total hits
+				SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+				// Render all targets again after repositioning one
+				for (const auto& target : targets) {
+					RenderRectangle_target(Topleft_x(target.x, width / 2), Topleft_y(target.y, hight / 2), width, hight, 255);
+				}
+				std::cout << hits << "\n";
+				std::cout << score << "\n";
+				hits = 1;
+				break;  // Only one target moves at a time
 			}
-			hits++;
+			else {
+				if (hx == 0 and hy == 0) {
+					continue; //Potential bug: continue should continue the outer while loop, not inner for loop.
+				}
+				hits++;
+			}
+		
+
 		}
 
-		if (hits >= 10) {
-
-
+		if (totalHits >= 5) {  // Stop the game after 5 hits on the target. (Before it was "hits" and that counted all hits, succsesfull or not, totalHits coutns only hits on the target.)
 			std::string gameOver = "GAME OVER \n  Score: " + std::to_string(score);
-
 			SDL_Surface* GOSurface = TTF_RenderText_Solid(font, gameOver.c_str(), color);
 			if (!GOSurface) {
 				std::cerr << "TTF_RenderText_Solid Error: " << TTF_GetError() << std::endl;
