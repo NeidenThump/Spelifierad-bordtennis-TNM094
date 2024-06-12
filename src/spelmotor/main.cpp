@@ -149,7 +149,23 @@ bool targetsOverlap(int x1, int y1, int x2, int y2, int diameter) {
 	return distance < diameter;
 }
 
-
+//Helper function.
+void findEmptyTargetSpace(int& targetX, int& targetY, std::vector<SDL_Point>targets, int targetWidth, SDL_Rect secondDisplayBounds, const int NUM_TARGET) {
+	bool validPosition; // Flag to check if the position is valid
+	do {
+		validPosition = true;
+		// Generate random coordinates for the target within bounds
+		targetX = createRandomCoordninate(1483 - targetWidth);
+		targetY = createRandomCoordninate(secondDisplayBounds.h - targetWidth);
+		// Check if the new target position overlaps with any existing targets
+		for (int j = 0; j < NUM_TARGET; ++j) {
+			if (targetsOverlap(targetX, targetY, targets[j].x, targets[j].y, targetWidth)) {
+				validPosition = false; // Set flag to false if overlap is detected
+				break; // Exit the inner loop if an overlap is found
+			}
+		}
+	} while (!validPosition); // Repeat until a valid position is found
+}
 
 
 
@@ -297,21 +313,10 @@ int main(int argc, char* args[]){
 
 	// Loop through each target to initialize its position
 	for (int i = 0; i < NUM_TARGETS; ++i) {
-		bool validPosition; // Flag to check if the position is valid
-		do {
-			validPosition = true;
-			// Generate random coordinates for the target within bounds
-			targets[i].x = createRandomCoordninate(1483 - width);
-			targets[i].y = createRandomCoordninate(secondDisplayBounds.h - width);
-			// Check if the new target position overlaps with any existing targets
-			for (int j = 0; j < i; ++j) {
-				if (targetsOverlap(targets[i].x, targets[i].y, targets[j].x, targets[j].y, width)) {
-					validPosition = false; // Set flag to false if overlap is detected
-					break; // Exit the inner loop if an overlap is found
-				}
-			}
-		} while (!validPosition); // Repeat until a valid position is found
+		findEmptyTargetSpace(targets[i].x, targets[i].y, targets, width, secondDisplayBounds, NUM_TARGETS);
 	}
+
+	
 
 
 	
@@ -394,20 +399,7 @@ int main(int argc, char* args[]){
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		for (int i = 0; i < NUM_TARGETS; ++i) { // Loop through each target to check if it is hit
 			if (checkedHit(targets[i].x, targets[i].y, width / 2, hx, hy)) { // Check if the current target is hit
-				bool validPosition;
-				do {
-					validPosition = true;
-					// Generate new random coordinates for the hit target
-					targets[i].x = createRandomCoordninate(1483 - width);
-					targets[i].y = createRandomCoordninate(secondDisplayBounds.h - width);
-					// Ensure the new target position does not overlap with other targets
-					for (int j = 0; j < NUM_TARGETS; ++j) {
-						if (i != j && targetsOverlap(targets[i].x, targets[i].y, targets[j].x, targets[j].y, width)) {
-							validPosition = false;
-							break;
-						}
-					}
-				} while (!validPosition); // Repeat until a valid position is found
+				findEmptyTargetSpace(targets[i].x, targets[i].y, targets, width, secondDisplayBounds, NUM_TARGETS);
 
 				// Reset the hit coordinates
 				hx = -10; hy = -10;
