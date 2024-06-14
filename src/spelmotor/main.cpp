@@ -150,8 +150,9 @@ bool targetsOverlap(int x1, int y1, int x2, int y2, int diameter) {
 }
 
 //Helper function.
-void findEmptyTargetSpace(int& targetX, int& targetY, std::vector<SDL_Point>targets, int targetWidth, SDL_Rect secondDisplayBounds, const int NUM_TARGET) {
+std::array<int, 2> findEmptyTargetSpace(std::vector<SDL_Point> targets, int targetWidth, SDL_Rect secondDisplayBounds, const int NUM_TARGET) {
 	bool validPosition; // Flag to check if the position is valid
+	int targetX, targetY;
 	do {
 		validPosition = true;
 		// Generate random coordinates for the target within bounds
@@ -165,6 +166,8 @@ void findEmptyTargetSpace(int& targetX, int& targetY, std::vector<SDL_Point>targ
 			}
 		}
 	} while (!validPosition); // Repeat until a valid position is found
+
+	return { targetX, targetY };
 }
 
 
@@ -313,7 +316,9 @@ int main(int argc, char* args[]){
 
 	// Loop through each target to initialize its position
 	for (int i = 0; i < NUM_TARGETS; ++i) {
-		findEmptyTargetSpace(targets[i].x, targets[i].y, targets, width, secondDisplayBounds, NUM_TARGETS);
+		auto targetCoords = findEmptyTargetSpace(targets, width, secondDisplayBounds, NUM_TARGETS);
+		targets[i].x = targetCoords[0];
+		targets[i].y = targetCoords[1];
 	}
 
 	
@@ -383,8 +388,6 @@ int main(int argc, char* args[]){
 		scoreText = "Score: " + std::to_string(score);
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		//RenderRectangle_target(Topleft_x(x, width/2), Topleft_y(y, hight/2), width, hight, 255);
 		
 		// Loop through each target to render them
 		for (const auto& target : targets) {
@@ -398,8 +401,10 @@ int main(int argc, char* args[]){
 		renderWaterdrop(hx,hy); 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		for (int i = 0; i < NUM_TARGETS; ++i) { // Loop through each target to check if it is hit
-			if (checkedHit(targets[i].x, targets[i].y, width / 2, hx, hy)) { // Check if the current target is hit
-				findEmptyTargetSpace(targets[i].x, targets[i].y, targets, width, secondDisplayBounds, NUM_TARGETS);
+			if (checkedHit(targets[i].x, targets[i].y, width / 2, hx, hy)) {
+				auto newTargetCoords = findEmptyTargetSpace(targets, width, secondDisplayBounds, NUM_TARGETS);
+				targets[i].x = newTargetCoords[0];
+				targets[i].y = newTargetCoords[1];
 
 				// Reset the hit coordinates
 				hx = -10; hy = -10;
