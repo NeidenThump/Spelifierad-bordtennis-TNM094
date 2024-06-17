@@ -17,7 +17,7 @@ SDL_Texture* textrue_hit = nullptr;
 
 //int count = 1; 
 const int NUM_PARTICLES = 500;
-
+const int NUM_TARGETS = 3;  // Number of targets.
 
 
 
@@ -143,10 +143,83 @@ double scoreCalc(int hits) {
 	return((100 / hits) * 100 );
 }
 
+// Function to check if targets overlap
+bool targetsOverlap(int x1, int y1, int x2, int y2, int diameter) {
+	double distance = sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+	return distance < diameter;
+}
 
+//Helper function.
+std::array<int, 2> findEmptyTargetSpace(std::vector<SDL_Point> targets, int targetWidth, SDL_Rect secondDisplayBounds, const int NUM_TARGET) {
+	bool validPosition; // Flag to check if the position is valid
+	int targetX, targetY;
+	do {
+		validPosition = true;
+		// Generate random coordinates for the target within bounds
+		targetX = createRandomCoordninate(1483 - targetWidth);
+		targetY = createRandomCoordninate(secondDisplayBounds.h - targetWidth);
+		// Check if the new target position overlaps with any existing targets
+		for (int j = 0; j < NUM_TARGET; ++j) {
+			if (targetsOverlap(targetX, targetY, targets[j].x, targets[j].y, targetWidth)) {
+				validPosition = false; // Set flag to false if overlap is detected
+				break; // Exit the inner loop if an overlap is found
+			}
+		}
+	} while (!validPosition); // Repeat until a valid position is found
 
+	return { targetX, targetY };
+}
 
+void handleHits(std::vector<SDL_Point>& targets, int& score, int width, int hx, int hy, SDL_Rect secondDisplayBounds, int& hits, int& totalHits) {
+	for (int i = 0; i < NUM_TARGETS; ++i) { // Loop through each target to check if it is hit
+		if (checkedHit(targets[i].x, targets[i].y, width / 2, hx, hy)) {
+			auto newTargetCoords = findEmptyTargetSpace(targets, width, secondDisplayBounds, NUM_TARGETS);
+			targets[i].x = newTargetCoords[0];
+			targets[i].y = newTargetCoords[1];
 
+			// Reset the hit coordinates
+			hx = -10; hy = -10;
+			score = score + scoreCalc(hits); // Update the score
+			totalHits++;  // Increment total hits
+			hits = 1;
+			break;  // Only one target moves at a time
+		}
+		else {
+			if (hx == 0 && hy == 0) {
+				continue;
+			}
+			hits++;
+		}
+	}
+}
+
+void renderGame(SDL_Renderer* renderer, TTF_Font* font, int score, const std::vector<SDL_Point>& targets, int width, int hight, int hx, int hy) {
+	SDL_Color color = { 0, 0, 0 };
+	std::string scoreText = "Score: " + std::to_string(score);
+	SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText.c_str(), color);
+	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	int textWidth = 3 * textSurface->w;
+	int textHeight = 3 * textSurface->h;
+	int posX = 10;
+	int posY = 10;
+	SDL_Rect destRect = { posX, posY, textWidth, textHeight };
+
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+
+	// Loop through each target to render them
+	for (const auto& target : targets) {
+		// Render target.
+		// Topleft_x and Topleft_y calculate the top-left corner based on the center coordinates
+		// RenderRectangle_target renderar måltavla texturen på beräknad position med specifierad width, height, och alpha value (opacity)
+		RenderRectangle_target(Topleft_x(target.x, width / 2), Topleft_y(target.y, hight / 2), width, hight, 255);
+	}
+	renderWaterdrop(hx, hy);
+
+	SDL_RenderPresent(renderer);
+	SDL_DestroyTexture(textTexture);
+	SDL_FreeSurface(textSurface);
+}
 
 int main(int argc, char* args[]){
 	// Check if the command-line argument to start rendering is provided
@@ -276,8 +349,9 @@ int main(int argc, char* args[]){
 
 	// add a function to get coordinates
 	
-	int width = 400;
-	int hight = 400; 
+	int width = 300;	
+	int hight = 300;
+	int totalHits = 0;  // Track total number of hits
 	int x = createRandomCoordninate(1483 - width); // x- coordinate 
 	int y = createRandomCoordninate(secondDisplayBounds.h - width); // y coordinate 
 	int hits = 1;
@@ -285,6 +359,19 @@ int main(int argc, char* args[]){
 	int hx;
 	int hy;
 	std::string scoreText = "Score: " + std::to_string(score);
+
+	// Create a vector to store target coordinates
+	std::vector<SDL_Point> targets(NUM_TARGETS);
+
+	// Loop through each target to initialize its position
+	for (int i = 0; i < NUM_TARGETS; ++i) {
+		auto targetCoords = findEmptyTargetSpace(targets, width, secondDisplayBounds, NUM_TARGETS);
+		targets[i].x = targetCoords[0];
+		targets[i].y = targetCoords[1];
+	}
+
+	
+
 
 	
 	//Websocket
@@ -296,6 +383,8 @@ int main(int argc, char* args[]){
 	}
 	std::cout << "Connected to MATLAB successfully!" << std::endl;
 
+	SDL_Color color = { 0,0,0 };
+
 	// Game loop: 
 	while (gameIsRunning and client.isConnected()) {
 		try {
@@ -304,6 +393,7 @@ int main(int argc, char* args[]){
 				double positionyIN = 1080 - (1080.0f / 1110.0f) * coordinates.second;
 				hx = static_cast<int>(positionxIN);
 				hy = static_cast<int>(positionyIN);
+
 			std::cout << "X coordinate: " << hx << ", Y coordinate: " << hy << std::endl;
 			std::cout << "X coordinate: " <<(positionxIN) << ", Y coordinate: " <<  (positionyIN) << std::endl;
 		}
@@ -324,62 +414,12 @@ int main(int argc, char* args[]){
 			}
 		}  
 
-
-		SDL_Color color = { 0,0,0 }; 
-		SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText.c_str(), color); 
-		if (!textSurface) {
-			std::cerr << "TTF_RenderText_Solid Error: " << TTF_GetError() << std::endl;
-			break;
-		}
-
-		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-		if (!textTexture) {
-			std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-			SDL_FreeSurface(textSurface);
-			break;
-		}
-
-		int textWidth = 3* textSurface->w;
-		int textHeight = 3* textSurface->h;
-		int posX = 10;
-		int posY = 10;
-		SDL_Rect destRect = { posX, posY, textWidth, textHeight };
-
-		
-		scoreText = "Score: " + std::to_string(score);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		RenderRectangle_target(Topleft_x(x, width/2), Topleft_y(y, hight/2), width, hight, 255);
-		//renderExplosion(renderer, hx, hy);
-		renderWaterdrop(hx,hy); 
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		if (checkedHit(x, y, width/2, hx, hy) == true) {
-			std::cout << "true";
-			x = createRandomCoordninate(1483-width); // x- coordinate 
-			y = createRandomCoordninate(secondDisplayBounds.h-width); // y coordinate 
-			hx = -10; hy = -10;
-			SDL_RenderClear(renderer);
-			score = score + scoreCalc(hits);
-			SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-			RenderRectangle_target(Topleft_x(x, width / 2), Topleft_y(y, hight / 2), width, hight, 255);
-			std::cout << hits << "\n";
-			std::cout << score << "\n";
-			hits = 1; 
-
-		}
-		else {
-			if (hx == 0 and hy == 0) {
-				continue;
-			}
-			hits++;
-		}
-
-		if (hits >= 10) {
+		handleHits(targets, score, width, hx, hy, secondDisplayBounds, hits, totalHits);
+		renderGame(renderer, font, score, targets, width, hight, hx, hy);
 
 
+		if (totalHits >= 5) {  // Stop the game after 5 hits on the target
 			std::string gameOver = "GAME OVER \n  Score: " + std::to_string(score);
-
 			SDL_Surface* GOSurface = TTF_RenderText_Solid(font, gameOver.c_str(), color);
 			if (!GOSurface) {
 				std::cerr << "TTF_RenderText_Solid Error: " << TTF_GetError() << std::endl;
@@ -389,35 +429,25 @@ int main(int argc, char* args[]){
 			SDL_Texture* GOTexture = SDL_CreateTextureFromSurface(renderer, GOSurface);
 			if (!GOTexture) {
 				std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-				SDL_FreeSurface(textSurface);
 				break;
 			}
+			int pX = std::floor(1483 / 2 - 2 * GOSurface->w);
+			int pY = secondDisplayBounds.h / 4;
+			SDL_Rect dRect = { pX, pY, 1483 / 2, secondDisplayBounds.h / 2 };
 
-			int pX = std::floor(1483/2 - 2*GOSurface->w) ;
-			int pY = secondDisplayBounds.h/4;
-			SDL_Rect dRect = { pX, pY, 1483/2,  secondDisplayBounds.h/2 };
-
-
-			SDL_RenderClear(renderer);
+			SDL_RenderClear(renderer);	//This is the gameover screen
 			SDL_RenderCopy(renderer, GOTexture, NULL, &dRect);
 			SDL_RenderPresent(renderer);
 
-
-			SDL_DestroyTexture(textTexture);
-			SDL_FreeSurface(textSurface);
 			SDL_DestroyTexture(GOTexture);
 			SDL_FreeSurface(GOSurface);
-
 			SDL_Delay(5000);
-			gameIsRunning = false; 
-
+			gameIsRunning = false;
 		}
-		
-		SDL_RenderPresent(renderer);
-		SDL_DestroyTexture(textTexture);
-		SDL_FreeSurface(textSurface);
 
-		SDL_RenderClear(renderer);
+
+						
+
 		SDL_Delay(500);
 	}
 	client.close();
